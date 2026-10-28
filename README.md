@@ -2,7 +2,7 @@
 
 # PickMoment: Single-Image-to-Video via Learning Continuous-Time Reblurring
 
-[Junseong Shin](https://junsung6140.github.io/)<sup>1</sup> · Hyeonsu Jo<sup>2</sup> · Daehyun Kim<sup>3</sup> · Tae Hyun Kim<sup>1,3†</sup>
+[Junseong Shin](https://junsung6140.github.io/)<sup>1</sup> · Hyeonsu Jo<sup>2</sup> · [Daehyun Kim](https://kdhrick2222.github.io/)<sup>3</sup> · [Tae Hyun Kim](https://sites.google.com/view/lliger9/)<sup>1,3†</sup>
 
 <sup>1</sup>Department of Artificial Intelligence, Hanyang University · <sup>2</sup>Department of Intelligence Convergence, Hanyang University · <sup>3</sup>Department of Computer Science, Hanyang University
 
