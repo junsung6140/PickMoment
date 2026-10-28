@@ -1,0 +1,84 @@
+# PickMoment training config (the released checkpoint was trained with this file).
+#
+# Usage:
+#   accelerate launch train.py --config configs/train.yaml
+#
+# Effective batch size = batch_size x gradient_accumulation_steps x num_GPUs.
+
+model:
+  backbone: "black-forest-labs/FLUX.2-klein-4B"   # or a local folder, e.g. checkpoints/FLUX.2-klein-4B
+  num_cond_tokens: 4
+  enable_grad_checkpointing: true
+
+data:
+  gopro_train_dir:           "data/GOPRO_Large/train"
+  gopro_subframes_train_dir: "data/GOPRO_Large_subframes/train"
+  gopro_test_dir:            "data/GOPRO_Large/test"
+  gopro_subframes_test_dir:  "data/GOPRO_Large_subframes/test"
+  max_val_per_scene: 9
+
+  patch_size: 512
+  batch_size: 2
+  num_workers: 4
+  epoch_size: 50000
+  sharp_ratio: 0.25
+
+  # Sub-frame indices used for supervision: "all" | "odd" | "even".
+  # The released model uses all sub-frames.
+  frame_parity: "all"
+
+  # [patch_size, batch_size, until_step]
+  progressive:
+    enabled: true
+    schedule:
+      - [256, 8, 30000]
+      - [384, 4, 60000]
+      - [512, 2, 100000]
+
+training:
+  max_steps: 100000
+  learning_rate: 1.0e-4
+  eta_min_ratio: 0.1
+  warmup_steps: 2000
+  gradient_accumulation_steps: 2
+  mixed_precision: "bf16"
+  validation_steps: 2000
+  save_steps: 100000
+  grad_clip: 1.0
+
+  optimizer_kwargs:
+    betas: [0.9, 0.999]
+    weight_decay: 0.01
+
+  ident_warmup_steps: 1000
+  consist_warmup_steps: 0
+  consist_delay_steps: 2000
+
+loss:
+  lpips_net: "vgg"
+  use_ea_lpips: true
+  sharp_eps: 0.01
+
+  # Interval-mean reconstruction
+  recon:
+    pixel_l1_weight:    0.0
+    pixel_lpips_weight: 0.0
+    latent_l2_weight:   1.0
+
+  # Sharp frame at the interval boundary t (zero-interval limit)
+  ident:
+    pixel_l1_weight:    1.0
+    pixel_lpips_weight: 2.0
+    latent_l2_weight:   0.0
+
+  # Additivity over sub-intervals
+  consist:
+    pixel_l1_weight:  0.0
+    latent_l2_weight: 0.1
+
+logging:
+  output_dir: "outputs/pickmoment"
+  wandb_project: "pickmoment"
+  log_interval: 50
+  save_images: true
+  num_val_images: 10

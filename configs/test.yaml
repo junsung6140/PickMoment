@@ -1,0 +1,26 @@
+# PickMoment evaluation config.
+#
+# Usage:
+#   python test.py --config configs/test.yaml --mode gopro_deblur --output_dir results/gopro
+#   bash scripts/test_all.sh
+
+model:
+  backbone: "black-forest-labs/FLUX.2-klein-4B"   # or a local folder, e.g. checkpoints/FLUX.2-klein-4B
+  # Download best_model.pt from the link in README.md
+  checkpoint: "checkpoints/best_model.pt"
+  num_cond_tokens: 4
+
+data:
+  gopro_test_dir:           "data/GOPRO_Large/test"
+  gopro_subframes_test_dir: "data/GOPRO_Large_subframes/test"
+  hide_test_dir:            "data/HIDE_test"
+  realblur_test_dir:        "data/RealBlur_test"
+
+# mode: gopro_deblur | hide_deblur | realblur_j_deblur | realblur_r_deblur | gopro_perframe
+test:
+  mode: "gopro_deblur"
+  output_dir: "results/gopro"
+  # Half-width of the (s, t) query around each moment
+  eps: 0.01
+  # N for gopro_perframe (scenes with N averaged frames)
+  perframe_n_frames: 11

@@ -1,0 +1,24 @@
+# Tested with Python 3.10 and CUDA 12.x.
+torch==2.7.0
+torchvision==0.22.0
+# FLUX.2-klein support. Developed with diffusers 0.37.0.dev0 (installed from source).
+# If 0.37.0 is not on PyPI yet, use:
+#   pip install git+https://github.com/huggingface/diffusers.git
+diffusers>=0.37.0
+accelerate==1.4.0
+huggingface-hub==0.36.0
+safetensors==0.7.0
+numpy==1.26.4
+opencv-python==4.9.0.80
+pillow==11.3.0
+scikit-image==0.25.2
+pyyaml==6.0.3
+tqdm==4.67.1
+lpips==0.1.4
+
+# Evaluation only
+DISTS_pytorch
+cd-fvd
+
+# Optional logging (train.py --wandb)
+wandb==0.16.2

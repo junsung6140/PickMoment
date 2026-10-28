@@ -10,12 +10,18 @@
 
 [![Project Page](https://img.shields.io/badge/Project-Page-blue)](https://junsung6140.github.io/pickmoment_project_page/)
 [![arXiv](https://img.shields.io/badge/arXiv-2610.01279-b31b1b)](https://arxiv.org/abs/2610.01279)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey)](LICENSE)
 
 </div>
 
 ![Overview](assets/teaser.jpg)
 
-Overview of the proposed **PickMoment** framework. Given a single motion-blurred image, our method unifies three tasks: **(a)** Image deblurring, predicting the center sharp frame of the blur exposure. **(b)** Blur-to-video generation predicts an $n$-frame sharp video by uniformly sampling the normalized exposure trajectory at $M$ time points with interval $\Delta t = 1/(M-1)$; the figure illustrates an 11-frame example. **(c)** Arbitrary sharp-frame prediction enables the recovery of sharp frames at arbitrary time points within the blur exposure, thereby enabling continuous-time video generation.
+From a single motion-blurred image, one PickMoment model does three things: **(a)** single-image deblurring (the center sharp frame), **(b)** blur-to-video (N sharp frames over the exposure), and **(c)** pick-a-moment recovery (a sharp frame at any time inside the exposure). Each output is one forward pass, with no iterative sampling.
+
+## News
+
+- **2026-10**: Code, pretrained weights, and our result images are released.
+- **2026-09**: PickMoment is accepted to NeurIPS 2026.
 
 ## Abstract
 
@@ -25,51 +31,149 @@ Motion blur arises from the temporal integration of a continuous sharp signal ov
 
 ![Training strategy](assets/method.jpg)
 
-Conceptual illustration of the training strategy of PickMoment.
+The model takes a blurry image and a time interval (s, t) inside the exposure, and predicts the mean of the sharp frames over that interval. It is trained with three losses: reconstruction against the mean of the ground-truth sub-frames, additivity across split intervals, and a sharp-frame loss at the zero-length interval s = t. At test time, a sharp frame at time τ is the prediction for the tiny interval (τ - ε, τ + ε).
 
 ## Results
 
-Quantitative comparison for single-image deblurring. **Bold** indicates the best result and <u>underline</u> indicates the second-best result among generative-based methods.
+### Single-image deblurring
 
-| Dataset | Metric | Restormer | HI-Diff | UFPNet | AdaRevD | DiffBIR | OSEDiff | Diff-Plugin | FideDiff | Ours |
-|---|---|---|---|---|---|---|---|---|---|---|
-| GoPro | PSNR↑ | 32.92 | 33.33 | 34.09 | 34.60 | 26.15 | 24.34 | 22.88 | <u>28.79</u> | **29.43** |
-| GoPro | SSIM↑ | 0.9611 | 0.9642 | 0.9686 | 0.9716 | 0.8377 | 0.8228 | 0.7798 | <u>0.9148</u> | **0.9253** |
-| GoPro | LPIPS↓ | 0.0841 | 0.0799 | 0.0764 | 0.0712 | 0.2366 | 0.1738 | 0.2332 | <u>0.0831</u> | **0.0802** |
-| GoPro | DISTS↓ | 0.0724 | 0.0710 | 0.0666 | 0.0672 | 0.1460 | 0.0834 | 0.1166 | <u>0.0525</u> | **0.0429** |
-| HIDE | PSNR↑ | 31.22 | 31.46 | 31.74 | 32.35 | 25.94 | 23.20 | 21.94 | <u>27.28</u> | **27.52** |
-| HIDE | SSIM↑ | 0.9423 | 0.9446 | 0.9471 | 0.9525 | 0.8216 | 0.7611 | 0.7272 | <u>0.8775</u> | **0.8891** |
-| HIDE | LPIPS↓ | 0.1082 | 0.1055 | 0.0931 | 0.0872 | 0.2091 | 0.2208 | 0.2732 | <u>0.1068</u> | **0.1046** |
-| HIDE | DISTS↓ | 0.0730 | 0.0725 | 0.0676 | 0.0666 | 0.1246 | 0.1001 | 0.1411 | <u>0.0647</u> | **0.0553** |
-| RealBlur-J | PSNR↑ | 28.96 | 29.15 | 29.87 | 30.12 | 26.92 | 26.83 | 25.77 | **28.96** | <u>28.94</u> |
-| RealBlur-J | SSIM↑ | 0.8786 | 0.8898 | 0.8840 | 0.8945 | 0.7450 | 0.8004 | 0.7711 | <u>0.8695</u> | **0.8757** |
-| RealBlur-J | LPIPS↓ | 0.1561 | 0.1470 | 0.1441 | 0.1408 | 0.2587 | 0.1793 | 0.2055 | **0.1142** | <u>0.1184</u> |
-| RealBlur-J | DISTS↓ | 0.1112 | 0.1050 | 0.1101 | 0.1037 | 0.1599 | 0.1198 | 0.1355 | **0.0800** | <u>0.0841</u> |
-| RealBlur-R | PSNR↑ | 36.19 | 36.28 | 36.25 | 36.53 | 32.60 | 33.54 | 32.64 | <u>36.01</u> | **36.08** |
-| RealBlur-R | SSIM↑ | 0.9572 | 0.9583 | 0.9528 | 0.9570 | 0.8493 | 0.9056 | 0.8496 | <u>0.9424</u> | **0.9510** |
-| RealBlur-R | LPIPS↓ | 0.0608 | 0.0602 | 0.0615 | 0.0621 | 0.3388 | 0.1057 | 0.1422 | **0.0584** | <u>0.0612</u> |
-| RealBlur-R | DISTS↓ | 0.0833 | 0.0814 | 0.0854 | 0.0846 | 0.2576 | 0.1322 | 0.1673 | <u>0.0862</u> | **0.0833** |
+<p align="center"><img src="assets/table_deblur.png" width="100%" alt="Table 1"></p>
 
 ![Qualitative deblurring](assets/qual_deblur.jpg)
 
-Qualitative comparison for single-image deblurring on GoPro, HIDE, and RealBlur-J (top to bottom). Best viewed zoomed in.
+### Blur-to-video
 
-Quantitative comparison for blur-to-video on GoPro-7.
-
-| Method | PSNR<sub>p</sub>↑ | SSIM<sub>p</sub>↑ | LPIPS<sub>p</sub>↓ | FVD↓ | EPE↓ |
-|---|---|---|---|---|---|
-| Jin et al. | 25.23 | 0.8190 | 0.084 | 235.53 | 3.38 |
-| MotionETR | 26.54 | 0.8825 | 0.015 | 94.90 | 1.46 |
-| Blur2Vid | <u>30.01</u> | <u>0.9359</u> | <u>0.012</u> | **21.46** | **0.39** |
-| Ours | **31.24** | **0.9388** | **0.0086** | <u>27.40</u> | <u>0.86</u> |
+<p align="center"><img src="assets/table_b2v.png" width="55%" alt="Table 2"></p>
 
 ![Qualitative blur-to-video](assets/qual_b2v.jpg)
 
-Qualitative comparison for blur-to-video on GoPro-7. Best viewed zoomed in.
+Our result images for all test sets above (GoPro, HIDE, RealBlur-J, RealBlur-R, and GoPro-7 blur-to-video) can be downloaded [here](TODO_GOOGLE_DRIVE_RESULTS_LINK).
 
-## Code
+## Getting started
 
-Coming soon.
+### Installation
+
+```bash
+git clone https://github.com/junsung6140/PickMoment.git
+cd PickMoment
+conda create -n pickmoment python=3.10 -y
+conda activate pickmoment
+pip install -r requirements.txt
+```
+
+The backbone is [FLUX.2-klein-4B](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B). By default it is loaded from the Hugging Face Hub by its id. To use a local copy, set `model.backbone` in the configs (or `--backbone` in `inference.py`) to the folder, for example `checkpoints/FLUX.2-klein-4B`.
+
+### Pretrained model
+
+| Model | Backbone | Size | Download |
+|---|---|---|---|
+| PickMoment | FLUX.2-klein-4B (full transformer fine-tune) | 7.8 GB | [Google Drive](TODO_GOOGLE_DRIVE_CKPT_LINK) |
+
+Unzip it so that the file is at `checkpoints/best_model.pt`. This is the default path in all scripts. To use another path, pass `--checkpoint path/to/best_model.pt`.
+
+### Inference
+
+Time inside the exposure is normalized to [-1, 1]: -1 is the start, 0 is the center, and 1 is the end. Inputs of any size are padded to a multiple of 32.
+
+```bash
+# Deblurring: the center sharp frame (tau = 0)
+python inference.py --input path/to/blurry.png --output_dir outputs
+
+# Pick-a-moment: sharp frames at any moments in [-1, 1]
+python inference.py --input path/to/blurry.png --output_dir outputs --tau -1 -0.5 0 0.37 1
+
+# Blur-to-video: N frames at uniform moments from -1 to 1 (also saved as mp4)
+python inference.py --input path/to/blurry.png --output_dir outputs --n_frames 11 --save_mp4
+```
+
+`--input` can also be a folder. Use `--max_batch` to lower memory use with `--n_frames`.
+
+### Data preparation
+
+Put all datasets under `data/` (or edit the paths in `configs/`):
+
+```
+data/
+├── GOPRO_Large/                  # GoPro (only "frames N offset M.txt" per scene is read)
+│   ├── train/GOPR0372_07_00/ ...
+│   └── test/GOPR0384_11_00/ ...
+├── GOPRO_Large_subframes/        # all 240 fps frames of GoPro (GOPRO_Large_all)
+│   ├── train/GOPR0372_07_00/*.png
+│   └── test/GOPR0384_11_00/*.png
+├── HIDE_test/
+│   ├── input/*.png
+│   └── target/*.png
+├── RealBlur_test/
+│   ├── RealBlur-J/{input,target}/*.png
+│   └── RealBlur-R/{input,target}/*.png
+├── GOPRO_7_linear/               # made by scripts/prepare_gopro7_linear.py
+│   └── test/blur/{scene}/{center_idx}.png
+└── GOPROResultsImages/
+    └── GT/{scene}/{center_idx}/frame_00000.png ... frame_00006.png   # GoPro-7 GT, 640x360
+```
+
+- **GoPro**: download `GOPRO_Large` and `GOPRO_Large_all` from the [GoPro dataset page](https://seungjunnah.github.io/Datasets/gopro), and rename (or symlink) `GOPRO_Large_all` to `GOPRO_Large_subframes`. Training and testing read the raw sub-frames: each blurry input is the pixel average of the N sub-frames of one GoPro blur, and the GT sharp frame is the center sub-frame. The `blur/` and `sharp/` folders of `GOPRO_Large` are not used.
+- **HIDE and RealBlur**: use the test sets in the `input/` and `target/` layout above (the same layout used by MPRNet and Restormer).
+- **GoPro-7 (blur-to-video)**: build the 7-frame blur inputs from the GoPro test sub-frames with the command below. For the GT clips, use the 640x360 GoPro-7 ground truth from the [Blur2Vid](https://github.com/tedlasai/blur2vid) evaluation release and place it under `data/GOPROResultsImages/GT`.
+
+```bash
+python scripts/prepare_gopro7_linear.py \
+    --src_root data/GOPRO_Large_subframes \
+    --save_root data/GOPRO_7_linear \
+    --splits test --window_size 7
+```
+
+### Evaluation
+
+Run everything in Table 1 and Table 2:
+
+```bash
+bash scripts/test_all.sh
+# or with another checkpoint / output folder
+CHECKPOINT=path/to/best_model.pt OUT_DIR=results bash scripts/test_all.sh
+```
+
+Single-image deblurring (Table 1). PSNR and SSIM on GoPro and HIDE are computed on RGB uint8 images (SSIM with the 3D Gaussian kernel of AdaRevD). RealBlur uses the official ECC alignment. LPIPS uses AlexNet.
+
+```bash
+python test.py --config configs/test.yaml --mode gopro_deblur      --output_dir results/gopro
+python test.py --config configs/test.yaml --mode hide_deblur       --output_dir results/hide
+python test.py --config configs/test.yaml --mode realblur_j_deblur --output_dir results/realblur_j
+python test.py --config configs/test.yaml --mode realblur_r_deblur --output_dir results/realblur_r
+```
+
+Blur-to-video on GoPro-7 (Table 2). Frames are predicted at full resolution, downsampled 2x to 640x360, and scored with the Blur2Vid protocol (best of forward and reversed order, patch SSIM and LPIPS on 40x40 patches, FVD, RAFT EPE).
+
+```bash
+python test_blur2vid.py --config configs/test.yaml \
+    --blur_dir data/GOPRO_7_linear/test/blur \
+    --gt_dir data/GOPROResultsImages/GT \
+    --output_dir results/blur2vid \
+    --n_frames 7 --with_epe --with_fvd
+```
+
+Per-frame video quality on GoPro-11 at full resolution:
+
+```bash
+python test.py --config configs/test.yaml --mode gopro_perframe --n_frames 11 --output_dir results/gopro11_perframe
+```
+
+### Training
+
+```bash
+accelerate config          # once, to set the number of GPUs
+bash scripts/train.sh      # add --wandb to log to Weights & Biases
+```
+
+`configs/train.yaml` holds the settings of the released model:
+
+- Full fine-tuning of the FLUX.2-klein-4B transformer. The VAE is frozen.
+- One NVIDIA RTX A6000 (48 GB), about 4 days.
+- 100K steps, bf16 mixed precision, gradient checkpointing, AdamW with learning rate 1e-4, 2K warmup steps, then cosine decay to 1e-5.
+- Progressive patch size 256, 384, 512 with batch size 8, 4, 2 (switching at 30K and 60K steps), and gradient accumulation 2.
+- Losses: interval-mean reconstruction (latent L2), sharp-frame loss at the zero-interval limit (pixel L1 + 2 x edge-aware LPIPS with VGG), and additivity loss (latent L2, weight 0.1, enabled after 2K steps).
+
+The best checkpoint on the GoPro validation subset (9 blurs per test scene) is saved as `outputs/pickmoment/best_model.pt`.
 
 ## Citation
 
@@ -81,3 +185,11 @@ Coming soon.
   year      = {2026}
 }
 ```
+
+## License
+
+The code and the PickMoment weights are released under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license (see [LICENSE](LICENSE)). The model is fine-tuned from FLUX.2-klein-4B, which has its own license from Black Forest Labs. Please also follow its terms when you use the weights.
+
+## Acknowledgements
+
+This code is built on [FLUX.2](https://github.com/black-forest-labs/flux2) and [diffusers](https://github.com/huggingface/diffusers). The blur-to-video evaluation follows the protocol of [Blur2Vid](https://github.com/tedlasai/blur2vid). The RealBlur evaluation follows the official [RealBlur](https://github.com/rimchang/RealBlur) ECC alignment code.
