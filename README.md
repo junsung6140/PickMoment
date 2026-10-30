@@ -47,7 +47,7 @@ The model takes a blurry image and a time interval (s, t) inside the exposure, a
 
 ![Qualitative blur-to-video](assets/qual_b2v.jpg)
 
-Our result images for all test sets above (GoPro, HIDE, RealBlur-J, RealBlur-R, and GoPro-7 blur-to-video) can be downloaded [here](TODO_GOOGLE_DRIVE_RESULTS_LINK).
+Our result images for all test sets above (GoPro, HIDE, RealBlur-J, RealBlur-R, and GoPro-7 blur-to-video) can be downloaded [here](https://drive.google.com/file/d/1tKJmIcgtvPS9NOHTwKSOc4_TWsOWbD7f/view?usp=sharing).
 
 ## Getting started
 
@@ -67,7 +67,7 @@ The backbone is [FLUX.2-klein-4B](https://huggingface.co/black-forest-labs/FLUX.
 
 | Model | Backbone | Size | Download |
 |---|---|---|---|
-| PickMoment | FLUX.2-klein-4B (full transformer fine-tune) | 7.8 GB | [Google Drive](TODO_GOOGLE_DRIVE_CKPT_LINK) |
+| PickMoment | FLUX.2-klein-4B (full transformer fine-tune) | 7.8 GB | [Google Drive](https://drive.google.com/file/d/1A9MQ1cG3-GCdnfSz9ix1r5ua3hC2pFWJ/view?usp=sharing) |
 
 Unzip it so that the file is at `checkpoints/best_model.pt`. This is the default path in all scripts. To use another path, pass `--checkpoint path/to/best_model.pt`.
 
